@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+// Converts "Sheesham Wood Sofa" → "sheesham-wood-sofa"
+const generateSlug = (name) =>
+  name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -9,7 +18,6 @@ const productSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -72,8 +80,23 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Auto-generate a unique slug from the product name before saving
+productSchema.pre("save", async function () {
+  if (!this.isModified("name")) return;
+
+  let baseSlug = generateSlug(this.name);
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (await mongoose.models.Product.findOne({ slug, _id: { $ne: this._id } })) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  this.slug = slug;
+});
+
 // Indexes for search/filter/listing performance
-productSchema.index({ slug: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ isActive: 1 });
 

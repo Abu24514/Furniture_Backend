@@ -60,7 +60,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 /** 
- controller for LOGIN
+ controller for LOGOut
  @POST :/api/auth/logout
  */
 
@@ -74,7 +74,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 /** 
- controller for LOGIN
+ controller for PROFILE / CURRENT USER
  @GET : /api/auth/me
  */
 export const getCurrentUser = asyncHandler(async (req, res) => {
